@@ -37,12 +37,18 @@ def callback(request):
     # Recupera el estado de la sesión
     state = request.session.get('state')
 
+    # Obtiene el URI de redirección completo para la vista 'callback'
+    redirect_uri = request.build_absolute_uri(reverse('callback'))
+
     # Configura el flujo de OAuth y completa el proceso
     flow = InstalledAppFlow.from_client_secrets_file(
         settings.GOOGLE_CLIENT_SECRET_FILE,
         scopes=['https://www.googleapis.com/auth/photoslibrary.readonly'],
         state=state  # Revisa el estado almacenado
     )
+
+    # Establece el URI de redirección correcto en el flujo
+    flow.redirect_uri = redirect_uri
 
     # Completa la autenticación con el código de autorización
     credentials = flow.fetch_token(authorization_response=request.build_absolute_uri())
