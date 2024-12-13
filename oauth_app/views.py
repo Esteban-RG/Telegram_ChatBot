@@ -2,12 +2,23 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from google_auth_oauthlib.flow import InstalledAppFlow
 from django.conf import settings
+from oauth_app.models import OAuthCredentials
+from django.http import JsonResponse
+import json
 
 # Configura tus credenciales y alcances
 CLIENT_SECRET_FILE = settings.GOOGLE_CLIENT_SECRET_FILE  # Archivo de credenciales
 SCOPES = ['https://www.googleapis.com/auth/photoslibrary.readonly']
 
 def login(request):
+    # Obtiene el user_id desde los parámetros GET
+    user_id = request.GET.get('user_id')
+    if not user_id:
+        return render(request, 'oauth/error.html', {'message': 'user_id no proporcionado.'})
+
+    # Guarda el user_id en la sesión para usarlo en la vista `callback`
+    request.session['user_id'] = user_id
+
     # Obtiene el URI de redirección completo para la vista 'callback'
     redirect_uri = request.build_absolute_uri(reverse('callback'))
 
@@ -27,6 +38,7 @@ def login(request):
         include_granted_scopes='true'
     )
 
+        
     # Guarda el estado en la sesión para evitar ataques CSRF
     request.session['state'] = state
 
@@ -36,7 +48,11 @@ def login(request):
 def callback(request):
     # Recupera el estado de la sesión
     state = request.session.get('state')
+    user_id = request.session.get('user_id')
 
+    if not user_id:
+        return render(request, 'oauth/error.html', {'message': 'user_id no encontrado en la sesión.'})
+    
     # Obtiene el URI de redirección completo para la vista 'callback'
     redirect_uri = request.build_absolute_uri(reverse('callback'))
 
@@ -55,8 +71,34 @@ def callback(request):
 
     # Guarda las credenciales para su uso posterior
     if credentials:
-        with open(settings.TOKEN_FILE_PATH, 'w') as token_file:
-            token_file.write(credentials.to_json())
+        # Convierte las credenciales a JSON
+        credentials_json = json.dumps(credentials)
 
-    # Redirige al usuario a una página de inicio después de la autenticación
-    return redirect('home')  # Redirige a la vista que deseas después de la autenticación
+        # Guarda las credenciales en la base de datos
+        OAuthCredentials.objects.update_or_create(
+            user_id=user_id,  # Relaciona las credenciales con el user_id
+            defaults={'token': credentials_json}  # Actualiza el token si ya existe
+        )
+    return redirect('end')  # Redirige a la vista que deseas después de la autenticación
+
+def get_credentials(request, user_id):
+    try:
+        # Buscar las credenciales asociadas al user_id
+        credentials_obj = OAuthCredentials.objects.get(user_id=user_id)
+
+        # Cargar las credenciales del modelo y devolverlas en formato JSON
+        credentials_json = credentials_obj.token
+        return JsonResponse({'success': True, 'credentials': credentials_json}, status=200)
+
+    except OAuthCredentials.DoesNotExist:
+        # Si no se encuentran credenciales para el user_id
+        return JsonResponse({'success': False, 'error': 'Credenciales no encontradas para este user_id.'}, status=404)
+
+    except Exception as e:
+        # Manejar otros errores
+        return JsonResponse({'success': False, 'error': f'Error inesperado: {str(e)}'}, status=500)
+
+
+def end(request):
+    template_view = "oauth/end.html"
+    return render(request, template_view)

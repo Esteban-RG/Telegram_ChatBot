@@ -22,4 +22,6 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     path('login/',views.login, name='login'),
     path('callback/', views.callback, name='callback'),
+    path('end', views.end, name='end'),
+    path('get-credentials/<str:user_id>/', views.get_credentials, name='get_credentials'),
 ]

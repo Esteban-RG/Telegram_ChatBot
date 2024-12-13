@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'telegram-chatbot-vsdw.onrender.com',
+    '127.0.0.1'
 ]
 
 
@@ -34,6 +35,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'oauth_app',
+    "django_extensions",
     #'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,7 +59,7 @@ ROOT_URLCONF = 'Telegram_ChatBot.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -127,10 +129,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # settings.py
-import os
+
 
 # Ruta a tu archivo client_secrets.json
 GOOGLE_CLIENT_SECRET_FILE = os.path.join(BASE_DIR, 'client_secret.json')
 
 # settings.py
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token_files', 'token_photoslibrary_v1.json')
+
+
+SECURE_SSL_REDIRECT = True  # Redirige automáticamente todo el tráfico HTTP a HTTPS
+SECURE_HSTS_SECONDS = 31536000  # Activar HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
