@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-o6i2z2=hxjb_@(4q7*o=w*z1ij-o9^&p49i8lqxp1#_e0mzfue
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'telegram-chatbot-vsdw.onrender.com',
+    'telegram-chatbot-3g83.onrender.com',
     '127.0.0.1'
 ]
 
