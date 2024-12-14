@@ -22,6 +22,15 @@ async def start(update, context):
 # Registrar el comando
 application.add_handler(CommandHandler("start", start))
 
+# Este método debería ser llamado después de configurar el webhook
+application.run_webhook(
+    listen="0.0.0.0",  # Escucha en todas las interfaces
+    port=8000,         # Puerto donde tu aplicación Django está corriendo
+    url_path="webhook",  # Path del webhook
+    webhook_url=os.getenv("WEBHOOK_URL"),  # URL completa para el webhook
+)
+
+
 # Vista para manejar el webhook
 @csrf_exempt
 def webhook(request):
