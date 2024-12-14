@@ -16,7 +16,7 @@ class BotConfig(AppConfig):
 
     def ready(self):
         BOT_TOKEN = os.getenv('telegram_api_key')
-        WEBHOOK_URL = "https://127.0.0.1/webhook/"  # Cambia esto a tu dominio
+        WEBHOOK_URL = "https://telegram-chatbot-3g83.onrender.com/webhook/"  # Cambia esto a tu dominio
         
         async def set_webhook():
             bot = Bot(token=BOT_TOKEN)
