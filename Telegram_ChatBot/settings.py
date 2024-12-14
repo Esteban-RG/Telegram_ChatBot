@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'bot',
     'oauth_app',
     "django_extensions",
     #'django.contrib.admin',
@@ -134,8 +135,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Ruta a tu archivo client_secrets.json
 GOOGLE_CLIENT_SECRET_FILE = os.path.join(BASE_DIR, 'client_secret.json')
 
-# settings.py
-TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token_files', 'token_photoslibrary_v1.json')
 
 
 SECURE_SSL_REDIRECT = True  # Redirige automáticamente todo el tráfico HTTP a HTTPS

@@ -45,6 +45,8 @@ def login(request):
     # Redirige al usuario a la URL de autenticación de Google
     return redirect(auth_url)
 
+
+
 def callback(request):
     # Recupera el estado de la sesión
     state = request.session.get('state')
@@ -58,8 +60,8 @@ def callback(request):
 
     # Configura el flujo de OAuth y completa el proceso
     flow = InstalledAppFlow.from_client_secrets_file(
-        settings.GOOGLE_CLIENT_SECRET_FILE,
-        scopes=['https://www.googleapis.com/auth/photoslibrary.readonly'],
+        CLIENT_SECRET_FILE,
+        scopes=SCOPES,
         state=state  # Revisa el estado almacenado
     )
 
@@ -69,17 +71,27 @@ def callback(request):
     # Completa la autenticación con el código de autorización
     credentials = flow.fetch_token(authorization_response=request.build_absolute_uri())
 
-    # Guarda las credenciales para su uso posterior
     if credentials:
         # Convierte las credenciales a JSON
-        credentials_json = json.dumps(credentials)
+        credentials_dict = credentials  # `credentials` ya es un dict en este punto
+
+        # Cargar los valores del archivo client_secret_file
+        with open(CLIENT_SECRET_FILE, 'r') as file:
+            client_secrets = json.load(file)
+            credentials_dict['client_id'] = client_secrets['web']['client_id']
+            credentials_dict['client_secret'] = client_secrets['web']['client_secret']
+
+        # Convertir el diccionario combinado a JSON
+        credentials_json = json.dumps(credentials_dict)
 
         # Guarda las credenciales en la base de datos
         OAuthCredentials.objects.update_or_create(
             user_id=user_id,  # Relaciona las credenciales con el user_id
             defaults={'token': credentials_json}  # Actualiza el token si ya existe
         )
+
     return redirect('end')  # Redirige a la vista que deseas después de la autenticación
+
 
 def get_credentials(request, user_id):
     try:

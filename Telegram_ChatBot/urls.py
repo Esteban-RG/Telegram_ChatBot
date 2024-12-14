@@ -15,13 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from oauth_app import views
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('login/',views.login, name='login'),
     path('callback/', views.callback, name='callback'),
-    path('end', views.end, name='end'),
+    path('end/', views.end, name='end'),
     path('get-credentials/<str:user_id>/', views.get_credentials, name='get_credentials'),
+    path('webhook/',include('bot.urls')),
 ]
